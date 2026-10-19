@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "1.0",
+  "id": "dashboard-compact-001",
+  "slug": "micro-dashboard-compact",
+  "status": "draft",
+  "createdAt": "2026-04-06T09:30:00.000Z",
+  "updatedAt": "2026-04-06T13:45:00.000Z",
+  "publishedAt": null,
+  "title": "Microorganism Snapshot Dashboard",
+  "description": "Compact presentation view focused on the most important microorganism charts.",
+  "components": [
+    {
+      "id": "compact-1",
+      "widget": "chart-widget",
+      "type": "chart",
+      "chart": {
+        "template": "bar-horizontal"
+      },
+      "title": "Category Ranking",
+      "description": "Highest-volume categories in the dataset.",
+      "data": {
+        "source": "dataset.categoryCounts",
+        "transform": {
+          "type": "collection",
+          "labelField": "label",
+          "valueField": "count",
+          "sortBy": "count",
+          "sortDirection": "desc",
+          "limit": 6,
+          "labelMaxLength": 24
+        }
+      }
+    },
+    {
+      "id": "compact-2",
+      "widget": "chart-widget",
+      "type": "chart",
+      "chart": {
+        "template": "line"
+      },
+      "title": "Size Group Distribution",
+      "description": "How samples are spread across size bands.",
+      "data": {
+        "source": "dataset.sizes",
+        "transform": {
+          "type": "collection",
+          "labelField": "sizeGroup",
+          "valueField": "count"
+        }
+      }
+    },
+    {
+      "id": "compact-3",
+      "widget": "chart-widget",
+      "type": "chart",
+      "chart": {
+        "template": "bar"
+      },
+      "title": "Microorganism Distribution",
+      "description": "How samples are distributed across microorganism types.",
+      "data": {
+        "source": "dataset.byType",
+        "transform": {
+          "type": "collection",
+          "labelField": "microorganisms",
+          "valueField": "count",
+          "sortBy": "count",
+          "sortDirection": "desc",
+          "emptyLabel": "Unknown"
+        }
+      }
+    }
+  ]
+}

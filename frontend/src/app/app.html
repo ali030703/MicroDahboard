@@ -1,0 +1,254 @@
+<div class="demo-page">
+  <header class="demo-header">
+    <div class="header-container">
+      <div>
+        <h1>Microbiology Dashboard</h1>
+        <p class="demo-copy">Interactive dashboard for exploring microbiology morphology data through structured, natural-language requests.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="workspace-layout" aria-label="Analysis request and dashboard layout">
+    <aside class="left-rail" aria-label="Analysis controls">
+
+      <!-- PROMPT STUDIO -->
+      <article class="prompt-studio" aria-label="Request history and input">
+        <div class="panel-head">
+          <p class="demo-tech-label">Messages</p>
+          <div class="demo-actions">
+            <button class="mode-btn mode-btn-ghost" type="button" (click)="resetGeneratorInputs()">Clear</button>
+            <button class="mode-btn mode-btn-ghost" type="button" (click)="resetConversationSession()" [disabled]="loading">Reset</button>
+          </div>
+        </div>
+
+        <div #chatThread class="chat-thread" aria-live="polite" (scroll)="onChatThreadScroll()">
+          @if (!chatMessages.length) {
+            <p class="empty-copy">Enter a request to build the dashboard.</p>
+          } @else {
+            @for (message of chatMessages; track message.id) {
+              <article
+                class="chat-bubble"
+                [class.chat-bubble-user]="message.role === 'user'"
+                [class.chat-bubble-system]="message.role === 'engine'"
+              >
+                <p class="chat-author">{{ message.role === 'user' ? 'Request' : 'Response' }}</p>
+                <p class="chat-message">{{ message.text }}</p>
+              </article>
+            }
+          }
+        </div>
+
+        @if (selectedComponent) {
+          <section class="command-mode-panel" [class.command-mode-panel-focused]="!!focusedComponentId" aria-label="Selected component scope">
+            <div class="section-head">
+              <div>
+                <p class="demo-tech-label">{{ focusedComponentId ? 'Focused widget' : 'Selection' }}</p>
+                <h2>{{ selectedComponentLabel }}</h2>
+              </div>
+              <span class="section-pill" [class.section-pill-focused]="!!focusedComponentId">{{ focusedComponentId ? 'Focused' : selectedComponentKindLabel }}</span>
+            </div>
+
+            <p class="widget-hint">{{ focusedComponentId ? 'Commands below apply only to this widget — type, layout and visual changes only.' : selectedComponentHint }}</p>
+
+            <div class="command-mode-actions">
+              <button class="mode-btn mode-btn-ghost" type="button" (click)="focusSelectedWidget()" [disabled]="!!focusedComponentId">Focus</button>
+              <button class="mode-btn mode-btn-ghost" type="button" (click)="showAllWidgets()" [disabled]="!focusedComponentId">Show All</button>
+              <button class="mode-btn mode-btn-ghost" type="button" (click)="resetSelectedWidget()">Reset</button>
+              <button class="mode-btn mode-btn-ghost" type="button" (click)="clearSelectedComponent()">Deselect</button>
+            </div>
+          </section>
+        }
+
+        <!-- FREE-TEXT INPUT -->
+        <section class="guided-prompt-builder" aria-label="Query compilation configuration">
+          <label class="prompt-editor-field" for="analysis-input">
+            <span class="prompt-editor-label">{{ focusedComponentId ? 'Widget command' : 'Request' }}</span>
+            <textarea
+              id="analysis-input"
+              class="prompt-editor"
+              [(ngModel)]="generationPrompt"
+              rows="5"
+              [placeholder]="focusedComponentId ? 'e.g. change to bar chart · sort descending · show top 10' : 'e.g. Compare the area on a line chart of microorganisms with a solidity under 7'"
+            ></textarea>
+          </label>
+
+          <div class="command-mode-actions">
+            <button class="mode-btn" type="button" (click)="submitChatMessage()" [disabled]="loading">
+              {{ focusedComponentId ? 'Apply to widget' : selectedComponent ? 'Apply' : 'Generate Dashboard' }}
+            </button>
+            <button class="mode-btn mode-btn-ghost" type="button" (click)="resetGeneratorInputs()">
+              Clear
+            </button>
+          </div>
+        </section>
+
+        <div class="prompt-status-stack">
+          @if (widgetFeedback) {
+            <p class="widget-feedback">{{ widgetFeedback }}</p>
+          }
+          @if (interactionFeedback) {
+            <p class="widget-feedback widget-feedback-secondary">{{ interactionFeedback }}</p>
+          }
+        </div>
+      </article>
+
+      @if (graphSelection && graphDrilldownPreview) {
+        <section class="guided-prompt-builder graph-drilldown-builder" aria-label="Data isolation configurations">
+          <div class="section-head">
+            <div>
+              <p class="demo-tech-label">Drilldown</p>
+              <h2>Selected Point</h2>
+            </div>
+            <span class="section-pill">Preview</span>
+          </div>
+
+          <div class="guided-prompt-preview">
+            {{ graphDrilldownPreview.description }}
+          </div>
+
+          <div class="graph-drilldown-preview-copy">
+            Point: {{ graphSelection.pointLabel }} &middot; Value: {{ graphSelection.pointValue | number:'1.0-2' }}
+            @if (graphSelection.datasetLabel) {
+              &middot; Series: {{ graphSelection.datasetLabel }}
+            }
+          </div>
+
+          @for (group of graphDrilldownGroups; track group.key) {
+            <div class="guided-prompt-group">
+              <div class="guided-prompt-group-head">
+                <strong>{{ group.title }}</strong>
+                <span>{{ group.subtitle }}</span>
+              </div>
+
+              <div class="guided-prompt-options">
+                @for (option of group.options; track option.value) {
+                  <button
+                    class="prompt-chip"
+                    type="button"
+                    [class.prompt-chip-active]="isGraphDrilldownOptionSelected(group.key, option.value)"
+                    (click)="setGraphDrilldownOption(group.key, option.value)"
+                  >
+                    {{ option.label }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="graph-drilldown-preview-chart">
+            <app-chart-widget [chart]="graphDrilldownPreview" [componentId]="graphDrilldownPreview.id" />
+          </div>
+
+          <div class="command-mode-actions">
+            <button class="mode-btn mode-btn-ghost" type="button" (click)="clearGraphSelection()">
+              Close Drilldown
+            </button>
+          </div>
+        </section>
+      }
+
+      <!-- VERSION CONTROL LOG -->
+      <section class="iteration-lab" aria-label="Version history configuration logs">
+        <div class="section-head">
+          <div>
+            <p class="demo-tech-label">History</p>
+            <h2>Saved Versions</h2>
+          </div>
+          <span class="section-pill">{{ generationCount }} versions</span>
+        </div>
+
+        @if (!generationGroups.length) {
+          <p class="empty-copy">Saved versions will appear here.</p>
+        } @else {
+          <div class="iteration-group-list">
+            @for (group of generationGroups; track group.rootIterationId) {
+              <article class="iteration-group-card">
+                <div class="iteration-card-head">
+                  <div>
+                    <p class="iteration-title">{{ getGenerationGroupLabel(group.rootIteration) }}</p>
+                    <p class="iteration-meta">{{ group.rootIteration.createdAt | date:'short' }}</p>
+                  </div>
+                </div>
+
+                <div class="select-container">
+                  <label [for]="'version-' + group.rootIterationId" class="sr-only">Select version</label>
+                  <select [id]="'version-' + group.rootIterationId" class="intent-select" [(ngModel)]="group.selectedIterationId">
+                    @for (version of group.versions; track version.id; let versionIndex = $index) {
+                      <option [value]="version.id">
+                        {{ getGenerationVersionLabel(version, versionIndex, group.versions.length) }}
+                      </option>
+                    }
+                  </select>
+                </div>
+
+                <div class="iteration-actions">
+                  <button class="mode-btn mode-btn-ghost" (click)="loadSelectedGroupVersion(group)">Open</button>
+                  <button class="mode-btn" (click)="continueSelectedGroupVersion(group)">Create Variation</button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    </aside>
+
+    <!-- MAIN RENDER STAGE -->
+    <main class="right-stage" aria-label="Data rendering matrices">
+      @if (loading) {
+        <div class="state-card loading-card">
+          <p class="system-loader-text">Loading dashboard...</p>
+        </div>
+      }
+
+      @if (error) {
+        <div class="state-card state-card-error" role="alert">
+          <strong>Error:</strong> {{ error }}
+        </div>
+      }
+
+      @if (promptFallback) {
+        <section class="state-card invalid-prompt-card" aria-label="Parser recovery exceptions guidance">
+          <div class="invalid-prompt-head">
+            <p class="demo-tech-label">Request Problem</p>
+            <h2>{{ promptFallback.title }}</h2>
+            <p>{{ promptFallback.message }}</p>
+          </div>
+
+          <div class="invalid-prompt-grid">
+            <div>
+              <p class="invalid-prompt-label">Try this</p>
+              <ul class="invalid-prompt-list">
+                @for (suggestion of promptFallback.suggestions; track suggestion) {
+                  <li>{{ suggestion }}</li>
+                }
+              </ul>
+            </div>
+
+            <div>
+              <p class="invalid-prompt-label">Examples</p>
+              <div class="invalid-prompt-examples">
+                @for (example of promptFallback.examples; track example) {
+                  <button class="prompt-example-btn" type="button" (click)="usePromptExample(example)">
+                    {{ example }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      @if (!loading && !error && !promptFallback && dashboardModel) {
+        <section class="standard-charts">
+          <app-template-renderer
+            [dashboard]="dashboardModel"
+            [selectedComponentId]="selectedComponentId"
+            [focusedComponentId]="focusedComponentId"
+            (componentSelected)="selectDashboardComponent($event)"
+            (chartDataPointSelected)="onChartDataPointSelected($event)"
+          />
+        </section>
+      }
+    </main>
+  </section>
+</div>

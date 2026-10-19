@@ -1,0 +1,10 @@
+<!-- Purpose: Renders a dashboard chart widget and its interactive controls. -->
+<div class="chart-card">
+  <div class="chart-head">
+    <h4 class="chart-title">{{ chart.title }}</h4>
+    <span class="chart-template">{{ templateLabel }}</span>
+  </div>
+  <div class="chart-frame chart-frame-standard" (click)="$event.stopPropagation()">
+    <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="chartType" (chartClick)="onChartClick($event)"></canvas>
+  </div>
+</div>

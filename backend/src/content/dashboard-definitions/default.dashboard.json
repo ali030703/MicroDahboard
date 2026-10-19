@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "1.0",
+  "id": "dashboard-001",
+  "slug": "micro-dashboard",
+  "status": "published",
+  "createdAt": "2026-04-06T09:30:00.000Z",
+  "updatedAt": "2026-04-06T14:00:00.000Z",
+  "publishedAt": "2026-04-06T14:00:00.000Z",
+  "title": "Microorganism Overview Dashboard",
+  "description": "Presentation-ready overview of microorganism distribution, size patterns, and sample records.",
+  "components": [
+    {
+      "id": "comp-1",
+      "widget": "chart-widget",
+      "type": "chart",
+      "chart": {
+        "template": "bar"
+      },
+      "title": "Microorganism Distribution",
+      "description": "How samples are distributed across microorganism types.",
+      "data": {
+        "source": "dataset.byType",
+        "transform": {
+          "type": "collection",
+          "labelField": "microorganisms",
+          "valueField": "count",
+          "sortBy": "count",
+          "sortDirection": "desc",
+          "emptyLabel": "Unknown"
+        }
+      }
+    },
+    {
+      "id": "comp-1b",
+      "widget": "chart-widget",
+      "type": "chart",
+      "chart": {
+        "template": "bar-horizontal"
+      },
+      "title": "Microorganism Ranking",
+      "description": "The same microorganism distribution shown as a ranked horizontal view.",
+      "data": {
+        "source": "dataset.byType",
+        "transform": {
+          "type": "collection",
+          "labelField": "microorganisms",
+          "valueField": "count",
+          "sortBy": "count",
+          "sortDirection": "desc",
+          "emptyLabel": "Unknown"
+        }
+      }
+    },
+    {
+      "id": "comp-2",
+      "widget": "stats-widget",
+      "type": "stats",
+      "title": "Key Metrics Snapshot",
+      "description": "High-level metrics summarizing the microorganism dataset.",
+      "data": {
+        "source": "dataset.stats",
+        "transform": {
+          "type": "keyValue",
+          "fields": [
+            {
+              "label": "Total microbes",
+              "path": "total",
+              "format": "integer"
+            },
+            {
+              "label": "Average area",
+              "path": "avgArea",
+              "format": "decimal"
+            },
+            {
+              "label": "Average perimeter",
+              "path": "avgPerimeter",
+              "format": "decimal"
+            },
+            {
+              "label": "Average eccentricity",
+              "path": "avgEccentricity",
+              "format": "decimal"
+            },
+            {
+              "label": "Average solidity",
+              "path": "avgSolidity",
+              "format": "decimal"
+            },
+            {
+              "label": "Average radius",
+              "path": "avgRadius",
+              "format": "decimal"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "comp-3",
+      "widget": "chart-widget",
+      "type": "chart",
+      "chart": {
+        "template": "line"
+      },
+      "title": "Size Group Distribution",
+      "description": "How samples are spread across size bands.",
+      "data": {
+        "source": "dataset.sizes",
+        "transform": {
+          "type": "collection",
+          "labelField": "sizeGroup",
+          "valueField": "count"
+        }
+      }
+    },
+    {
+      "id": "comp-4",
+      "widget": "chart-widget",
+      "type": "chart",
+      "chart": {
+        "template": "bar-horizontal"
+      },
+      "title": "Category Ranking",
+      "description": "Highest-volume categories in the dataset.",
+      "data": {
+        "source": "dataset.categoryCounts",
+        "transform": {
+          "type": "collection",
+          "labelField": "label",
+          "valueField": "count",
+          "sortBy": "count",
+          "sortDirection": "desc",
+          "limit": 8,
+          "labelMaxLength": 24
+        }
+      }
+    },
+    {
+      "id": "comp-5",
+      "widget": "table-widget",
+      "type": "table",
+      "title": "Microbe Records Table Preview",
+      "description": "Sample rows from the microorganism dataset.",
+      "data": {
+        "source": "dataset.microbes",
+        "transform": {
+          "type": "table",
+          "limit": 8,
+          "columns": [
+            {
+              "key": "microorganisms",
+              "label": "Type"
+            },
+            {
+              "key": "Area",
+              "label": "Area"
+            },
+            {
+              "key": "Perimeter",
+              "label": "Perimeter"
+            },
+            {
+              "key": "Eccentricity",
+              "label": "Eccentricity"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+<!-- Purpose: Renders key-value statistic tiles for a dashboard stats widget. -->
+<div class="stats-grid">
+  @for (card of cards; track card.label) {
+    <div class="stat-card">
+      <span class="stat-label">{{ card.label }}</span>
+      <span class="stat-value">{{ card.value }}</span>
+    </div>
+  }
+</div>

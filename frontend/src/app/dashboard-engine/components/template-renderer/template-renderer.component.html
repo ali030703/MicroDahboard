@@ -1,0 +1,79 @@
+<!-- Purpose: Renders dashboard components by delegating to chart, stats, and table widgets. -->
+<div class="dashboard-shell">
+  <div class="dashboard-content">
+    @for (component of dashboard.components; track component.id) {
+      @if (shouldRenderComponent(component)) {
+        
+        <section
+          [id]="component.id"
+          class="content-section"
+          [class.content-section-chart]="isChartComponent(component)"
+          [class.content-section-table]="isTableComponent(component)"
+          [class.content-section-selected]="selectedComponentId === component.id"
+          (click)="onComponentClicked(component.id)"
+        >
+          @if (!isChartComponent(component)) {
+            <div class="section-header">
+              <div>
+                <h3 class="section-title">{{ component.title }}</h3>
+                @if (component.description) {
+                  <p class="section-copy">{{ component.description }}</p>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- CHART -->
+          @if (isChartComponent(component)) {
+            <div class="charts-grid">
+              <app-chart-widget 
+                [chart]="getComponentWithData(component)"
+                [componentId]="component.id" 
+                (pointSelected)="onChartPointSelected($event)" 
+              />
+            </div>
+          }
+
+          <!-- STATS -->
+          @if (isStatsComponent(component)) {
+            <app-stats-widget [cards]="getComponentWithData(component).data" />
+          }
+
+          <!-- TABLE -->
+          @if (isTableComponent(component)) {
+            <div class="table-card">
+              <div class="table-meta">
+                <span class="table-count">
+                  {{ getComponentWithData(component).data.length }} rows displayed
+                </span>
+              </div>
+
+              <div class="table-scroll">
+                <table class="dataset-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      @for (column of component.columns; track column.key) {
+                        <th scope="col">{{ column.label }}</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of getComponentWithData(component).data; track $index) {
+                      <tr>
+                        <td>{{ $index + 1 }}</td>
+                        @for (column of component.columns; track column.key) {
+                          <td>{{ row[column.key] ?? '—' }}</td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </section>
+      }
+    }
+  </div>
+</div>

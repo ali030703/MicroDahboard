@@ -1,0 +1,100 @@
+/* Purpose: Styles dashboard chart widgets, canvas areas, legends, and chart actions. */
+
+/* Chart cards sit in the render stage, not the control rail: quiet by
+   default (hairline border, no resting shadow) so the data is the
+   focus; a small lift on hover signals interactivity without the
+   "SaaS card" drifting-shadow effect. */
+.chart-card {
+  display: flex;         
+  flex-direction: column;
+  height: auto;
+  padding: 0.95rem 1rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-panel);
+  min-height: 300px;
+  box-shadow: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 6px 16px rgba(18, 24, 31, 0.06);
+  border-color: var(--lab-accent);
+}
+
+.chart-card.wide {
+  grid-column: 1 / -1;
+}
+
+.chart-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.chart-template {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.24rem 0.56rem;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--lab-accent-strong, var(--primary-alt));
+  background: var(--accent-soft);
+  white-space: nowrap;
+}
+
+.chart-frame {
+  position: relative;
+  width: 100%;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+.chart-frame-standard {
+min-height: 250px;}
+
+.chart-frame-compact {
+  height: 250px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.chart-frame-wide {
+  height: 280px;
+}
+
+.chart-frame canvas {
+  position: absolute;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (max-width: 900px) {
+  .chart-card,
+  .chart-card.wide {
+    min-height: auto;
+  }
+
+  .chart-frame-standard,
+  .chart-frame-compact,
+  .chart-frame-wide {
+    height: 230px;
+    max-width: none;
+  }
+}
+
+.chart-card:has(.chart-frame-standard) {
+  background: var(--bg-panel);
+}

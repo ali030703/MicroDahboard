@@ -1,0 +1,886 @@
+/* Purpose: Styles the main dashboard workspace, prompt controls, and app shell.
+   (app.css — kept in sync with style.css; same lab-inspired token/type redesign.) */
+
+/* ============================================================
+   DESIGN TOKENS
+   Palette and type grounded in the subject matter: a lab
+   instrument for inspecting microbiology morphology data,
+   not a generic SaaS console. Cool, clinical base tones with
+   a deep laboratory-green accent (methylene-blue/malachite
+   family) instead of the default SaaS blue or Claude-clay.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+  /* Core palette */
+  --ink: #12181f;
+  --ink-soft: #4b5760;
+  --paper: #f5f7f6;
+  --panel: #ffffff;
+  --panel-strong: #eef2f0;
+  --line: #dbe2df;
+  --line-strong: #b9c4bf;
+
+  /* Accent: deep lab green, used sparingly */
+  --lab-accent: #1f6f5c;
+  --lab-accent-strong: #175646;
+  --lab-accent-soft: #e2efe9;
+  --lab-accent-rgb: 31, 111, 92;
+
+  /* Warning / active-filter accent: warm amber, not stoplight red */
+  --lab-warn: #b3541e;
+  --lab-warn-soft: #f7e7db;
+
+  /* Error stays legible but restrained */
+  --lab-danger-text: #8a2f2f;
+  --lab-danger-soft: #f7e6e4;
+
+  /* Remap existing theme variables used throughout this file onto
+     the new palette, so every rule below keeps working unchanged. */
+  --text: var(--ink);
+  --text-dim: var(--ink-soft);
+  --border: var(--line);
+  --border-strong: var(--line-strong);
+  --bg-panel: var(--panel);
+  --bg-panel-strong: var(--panel-strong);
+  --bg-soft: var(--paper);
+  --primary: var(--lab-accent);
+  --primary-alt: var(--lab-accent-strong);
+  --accent: var(--lab-accent);
+  --accent-soft: var(--lab-accent-soft);
+  --accent-rgb: var(--lab-accent-rgb);
+  --danger-text: var(--lab-danger-text);
+  --danger-soft: var(--lab-danger-soft);
+  --shadow: 0 8px 20px rgba(18, 24, 31, 0.06);
+
+  /* Type roles */
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.demo-page,
+.demo-page input,
+.demo-page textarea,
+.demo-page select,
+.demo-page button {
+  font-family: var(--font-ui);
+}
+
+.demo-page {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1.25rem 1.25rem 1.75rem;
+  box-sizing: border-box;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Fix: only .demo-page itself had box-sizing: border-box. Every
+   width:100% field inside it (.prompt-editor, .intent-input,
+   .prompt-example-btn, etc.) defaulted to content-box, so its own
+   padding + border were added on top of 100%, pushing it slightly
+   past its container's edge. Scoping border-box to every descendant
+   fixes this without touching each rule individually. */
+.demo-page,
+.demo-page *,
+.demo-page *::before,
+.demo-page *::after {
+  box-sizing: border-box;
+}
+
+/* Header carries the one deliberate visual accent: a quiet rule in
+   the lab-accent color instead of a card-style gradient + shadow,
+   so it reads as instrument-panel signage, not a promo banner. */
+.demo-header {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.1rem;
+  padding: 1.15rem 1.3rem 1.3rem;
+  border: none;
+  border-bottom: 2px solid var(--lab-accent);
+  border-radius: 0;
+  background: var(--panel);
+  box-shadow: none;
+}
+
+/* Fix: HTML wraps the header title and status badge in .header-container
+   to lay them out side by side (title left, status right). This class was
+   missing from the stylesheet, so the two elements were simply stacking
+   in document order with no flex layout. */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.demo-kicker {
+  margin: 0;
+  color: var(--lab-accent);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.demo-header h1 {
+  margin: 0.3rem 0 0.16rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.85rem, 3vw, 2.7rem);
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  color: var(--ink);
+}
+
+.demo-copy {
+  margin: 0.38rem 0 0;
+  max-width: 68ch;
+  color: var(--text-dim);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+
+.workspace-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 29vw) minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: stretch;
+  min-height: calc(100vh - 9.2rem);
+}
+
+.left-rail {
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+  position: static;
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+}
+
+.right-stage {
+  min-width: 0;
+  min-height: calc(100vh - 9rem);
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.dashboard-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 0.1rem;
+}
+
+.standard-charts {
+  min-width: 0;
+}
+
+.standard-charts app-template-renderer {
+  display: block;
+}
+
+/* Prompt studio is the active work surface: the one panel that
+   earns real weight (border + shadow). Other panels stay quiet. */
+.prompt-studio {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow);
+  padding: 1.05rem;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.demo-tech-label {
+  margin: 0;
+  color: var(--lab-accent);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.demo-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+/* Primary action: squarer corners, a firmer footprint than a pill,
+   with a visible focus ring so it reads as an instrument control. */
+.mode-btn {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.58rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.mode-btn:hover {
+  background: var(--primary-alt);
+  border-color: var(--primary-alt);
+  box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.22);
+}
+
+.mode-btn:focus-visible {
+  outline: 2px solid var(--lab-accent);
+  outline-offset: 2px;
+}
+
+.mode-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mode-btn-ghost {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--text);
+}
+
+.mode-btn-ghost:hover {
+  background: var(--bg-panel-strong);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.chat-thread {
+  margin-top: 0.65rem;
+  padding: 0.7rem 0.6rem 0.7rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--paper);
+  display: grid;
+  gap: 0.5rem;
+  max-height: 25rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.chat-thread::-webkit-scrollbar {
+  width: 10px;
+}
+
+.chat-thread::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-thread::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--border-strong) 72%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.chat-thread::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--primary-alt) 58%, transparent);
+  background-clip: content-box;
+}
+
+.chat-bubble {
+  max-width: min(96%, 640px);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+}
+
+.chat-bubble-user {
+  justify-self: end;
+  background: var(--accent-soft);
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  border-radius: 10px 10px 3px 10px;
+}
+
+.chat-bubble-system {
+  justify-self: start;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 10px 10px 10px 3px;
+}
+
+.chat-author {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.chat-message {
+  margin: 0.2rem 0 0;
+  color: var(--text);
+  font-size: 0.94rem;
+  line-height: 1.4;
+}
+
+.chat-meta {
+  margin: 0.24rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.intent-controls {
+  margin-top: 0.62rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.intent-input,
+.intent-select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text);
+  padding: 0.58rem 0.72rem;
+  font-size: 0.94rem;
+}
+
+.intent-input {
+  flex: 1 1 360px;
+  min-width: 220px;
+}
+
+.intent-select {
+  flex: 1 1 190px;
+  min-width: 165px;
+}
+
+.intent-input:focus,
+.intent-select:focus {
+  outline: 2px solid rgba(var(--accent-rgb), 0.35);
+  outline-offset: 1px;
+}
+
+.command-mode-panel,
+.guided-prompt-builder {
+  margin-top: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-panel-strong);
+  padding: 0.95rem;
+}
+
+.command-mode-actions {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.prompt-editor-field {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.prompt-editor-label {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.prompt-editor {
+  width: 100%;
+  min-height: 11rem;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--text);
+  padding: 0.8rem 0.9rem;
+  font-size: 0.96rem;
+  line-height: 1.55;
+  font-family: var(--font-ui);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.prompt-editor:focus {
+  outline: 2px solid rgba(var(--accent-rgb), 0.35);
+  outline-offset: 1px;
+}
+
+.prompt-parameter-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.prompt-parameter-field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.prompt-parameter-field span {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 920px) {
+  .prompt-parameter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prompt-live-meta {
+  margin-top: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.prompt-live-meta span {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 0.25rem 0.55rem;
+}
+
+.guided-prompt-preview {
+  margin-top: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text);
+  padding: 0.55rem 0.68rem;
+  font-size: 0.94rem;
+  line-height: 1.45;
+}
+
+.prompt-status-stack {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.widget-feedback-secondary {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+
+.guided-prompt-group {
+  margin-top: 0.6rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--border);
+}
+
+.guided-prompt-group-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  color: var(--text-dim);
+}
+
+.guided-prompt-group-head strong {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.guided-prompt-group-head span {
+  font-size: 0.81rem;
+}
+
+.guided-prompt-options {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.graph-drilldown-builder {
+  margin-top: 0.75rem;
+}
+
+.graph-drilldown-preview-copy {
+  margin-top: 0.58rem;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.graph-drilldown-preview-chart {
+  display: block;
+  margin-top: 0.65rem;
+}
+
+.graph-drilldown-preview-chart app-chart-widget {
+  display: block;
+}
+
+.prompt-help {
+  margin-top: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0.85rem 0.9rem;
+}
+
+.prompt-help-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.prompt-help-line {
+  margin: 0.38rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.prompt-help-line strong {
+  color: var(--text);
+}
+
+.prompt-help-chips {
+  margin-top: 0.22rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.prompt-chip {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text);
+  padding: 0.28rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.prompt-chip:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-panel-strong);
+}
+
+.prompt-chip-active {
+  border-color: var(--lab-accent);
+  background: var(--accent-soft);
+  color: var(--lab-accent-strong);
+  box-shadow: none;
+}
+
+.prompt-help-example {
+  margin: 0.46rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.84rem;
+  line-height: 1.38;
+}
+
+.widget-feedback {
+  margin: 0.45rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.86rem;
+  line-height: 1.42;
+}
+
+/* Iteration lab / history rail: deliberately quiet. Hairline
+   separators only, no card shadow, so it recedes behind the
+   active prompt-studio panel rather than competing with it. */
+.iteration-lab {
+  margin-top: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-panel);
+  padding: 0.95rem;
+  box-shadow: none;
+}
+
+.section-head {display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;}
+
+.section-head h2 {
+  margin: 0.14rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.12rem;
+  color: var(--text);
+}
+
+.section-pill {border:1px solid var(--border);background:transparent;color:var(--text-dim);border-radius:6px;padding:0.26rem 0.55rem;font-size:0.76rem;font-weight:600;}
+.section-pill-focused {border-color: var(--lab-accent); background: var(--accent-soft); color: var(--lab-accent-strong);}
+.command-mode-panel-focused {border-color: var(--lab-accent); background: var(--accent-soft);}
+
+.empty-copy {margin:0.6rem 0 0;color:var(--text-dim);font-size:0.88rem;line-height:1.45;}
+
+.iteration-group-list {margin-top:0.62rem;display:grid;gap:0.55rem;}
+
+.iteration-group-card {border:1px solid var(--border);border-radius:10px;background:#fff;padding:0.8rem 0.85rem;display:grid;gap:0.55rem;box-shadow:none;}
+
+.iteration-group-card-active {
+  border-color: var(--lab-accent);
+  box-shadow: none;
+  border-width: 1.5px;
+}
+
+.iteration-card-head {display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;}
+
+.iteration-title {margin:0;color:var(--text);font-size:0.9rem;font-weight:600;}
+
+.iteration-meta {margin:0.15rem 0 0;color:var(--text-dim);font-size:0.8rem;}
+
+.iteration-badge {border-radius:6px;background:transparent;color:var(--text-dim);border:1px solid var(--border);padding:0.24rem 0.5rem;font-size:0.76rem;font-weight:600;}
+
+.iteration-summary {margin:0.45rem 0 0;color:var(--text-dim);font-size:0.86rem;line-height:1.42;}
+
+.iteration-prompt {margin:0.35rem 0 0;color:var(--text);font-size:0.84rem;line-height:1.42;}
+
+.iteration-actions {margin-top:0.58rem;display:flex;gap:0.45rem;flex-wrap:wrap;}
+
+/* Fix: the version <select> in each iteration-group-card is wrapped in
+   .select-container together with a visually-hidden <label class="sr-only">.
+   Neither class existed in the stylesheet before. */
+.select-container {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.select-container .intent-select {
+  width: 100%;
+  border-color: var(--lab-accent);
+  background: var(--accent-soft);
+  color: var(--lab-accent-strong);
+}
+
+/* Fix: standard visually-hidden-but-accessible utility. Without this rule
+   the "Select version" label rendered as visible plain text above every
+   version dropdown instead of being available only to screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.version-picker-field {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.version-picker-field .intent-select {
+  width: 100%;
+}
+
+.iteration-version-preview {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-panel-strong);
+  padding: 0.58rem 0.65rem;
+}
+
+.iteration-version-meta {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.state-card {
+  margin-bottom: 0.9rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-panel);
+  color: var(--text-dim);
+  box-shadow: none;
+}
+
+.state-card-error {
+  color: var(--danger-text);
+  background: var(--danger-soft);
+  border-left: 3px solid var(--lab-warn);
+}
+
+.invalid-prompt-card {
+  display: grid;
+  gap: 1rem;
+  border-color: var(--border);
+  background: var(--bg-panel);
+  color: var(--text);
+}
+
+.invalid-prompt-head h2 {
+  margin: 0.26rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--text);
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  line-height: 1.15;
+}
+
+.invalid-prompt-head p:last-child {
+  margin: 0.45rem 0 0;
+  max-width: 68ch;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.invalid-prompt-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(260px, 1.1fr);
+  gap: 0.9rem;
+}
+
+.invalid-prompt-label {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.invalid-prompt-list {
+  margin: 0.45rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.invalid-prompt-examples {
+  margin-top: 0.45rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.prompt-example-btn {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--text);
+  padding: 0.62rem 0.72rem;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.prompt-example-btn:hover {
+  border-color: var(--lab-accent);
+  background: var(--bg-panel-strong);
+  box-shadow: none;
+}
+
+@media (max-width: 840px) {
+  .invalid-prompt-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.standard-charts {
+  margin-bottom: 0.95rem;
+  min-height: 0;
+}
+
+@media (max-width: 980px) {
+  .workspace-layout {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+  }
+
+  .left-rail {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .right-stage {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .demo-page {
+    padding: 0.9rem 0.75rem 1.35rem;
+  }
+
+  .demo-header {
+    padding: 1rem;
+  }
+
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chat-bubble {
+    max-width: 100%;
+  }
+
+}
+
+/* Thesis screenshots: flatten shadows/gradients to solid borders for
+   cleaner, print-friendly captures. Apply by adding the "print-mode"
+   class to <body> before taking screenshots (no need for an actual
+   print dialog), or wire it into an @media print block if capturing
+   via a print-to-PDF workflow instead. Largely redundant now that the
+   base styles already avoid heavy shadows/gradients, kept for the
+   remaining accents (prompt-studio shadow, hover shadows). */
+.print-mode .prompt-studio {
+  box-shadow: none;
+}
+
+.print-mode .mode-btn:hover,
+.print-mode .prompt-example-btn:hover {
+  box-shadow: none;
+}
+
+@media print {
+  .prompt-studio {
+    box-shadow: none;
+  }
+}

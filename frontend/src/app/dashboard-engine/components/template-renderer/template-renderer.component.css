@@ -1,0 +1,164 @@
+/* Purpose: Styles the dashboard template renderer and widget layout grid. */
+.dashboard-shell {
+  display: block;
+}
+
+.dashboard-content {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.content-section {
+  scroll-margin-top: 1.5rem;
+  margin-bottom: 0;
+  min-width: 0;
+  height: 100%;
+  padding: 1rem 1.05rem 1.05rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-panel);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  cursor: pointer;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  position: relative;
+}
+
+.content-section-chart {
+  min-width: 0;
+  height: auto;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0;
+}
+
+.content-section-chart:hover ::ng-deep .chart-card {
+  border-color: var(--border-strong);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+}
+
+.content-section-chart.content-section-selected ::ng-deep .chart-card {
+  border-color: var(--accent);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.content-section-table {
+  grid-column: 1 / -1;
+}
+
+.content-section:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+}
+
+.content-section:focus {
+  outline: 2px solid rgba(var(--accent-rgb), 0.35);
+  outline-offset: 2px;
+}
+
+.content-section-selected {
+  border-color: var(--accent);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.section-copy {
+  margin: 0.25rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.83rem;
+  max-width: 54ch;
+}
+
+.charts-grid {
+  display: block;
+}
+
+.table-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-panel-strong);
+  overflow: hidden;
+}
+
+.table-meta {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.table-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.dataset-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dataset-table th,
+.dataset-table td {
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.dataset-table th {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--bg-soft);
+}
+
+.dataset-table td {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.dataset-table tbody tr:hover {
+  background: var(--bg-soft);
+}
+
+@media (max-width: 900px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+
+  .charts-grid {
+    display: block;
+  }
+
+  .table-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

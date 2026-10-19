@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "transforms": {
+    "collection": {
+      "description": "Map a collection into label/value pairs for chart widgets.",
+      "requiredFields": ["labelField", "valueField"]
+    },
+    "keyValue": {
+      "description": "Map a record into labeled KPI items for stats widgets.",
+      "requiredFields": ["fields"]
+    },
+    "table": {
+      "description": "Map a collection into a table widget.",
+      "requiredFields": []
+    }
+  },
+  "widgets": {
+    "chart-widget": {
+      "componentType": "chart",
+      "description": "Chart presentation config lives in chart, while data binding lives in data.",
+      "supportedTemplates": ["bar", "bar-horizontal", "line", "doughnut", "polar"]
+    },
+    "stats-widget": {
+      "componentType": "stats"
+    },
+    "table-widget": {
+      "componentType": "table"
+    }
+  }
+}

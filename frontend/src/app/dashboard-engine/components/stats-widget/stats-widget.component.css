@@ -1,0 +1,41 @@
+/* Purpose: Styles compact KPI and statistic tiles for dashboard summaries. */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+}
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-panel);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+.stat-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  min-height: 2rem;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.stat-value {
+  display: block;
+  margin-top: auto;
+  font-size: clamp(1.25rem, 1.9vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+  text-align: left;
+  overflow-wrap: anywhere;
+}

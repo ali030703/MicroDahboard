@@ -1,0 +1,60 @@
+{
+  "name": "micro-dashboard",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "cd frontend && ng serve",
+    "start:frontend": "cd frontend && ng serve",
+    "start:api": "node backend/server.js",
+    "build": "cd frontend && ng build",
+    "dev": "concurrently -k -n FE,API -c blue,green \"npm run start:frontend\" \"npm run start:api\"",
+    "test": "npm run validate:dashboard-foundation && npm run validate:microorganism-resolution && npm run validate:dashboard-failure-regressions && npm run validate:chatbot-contract && npm run validate:prompt-matrix",
+    "lint": "node scripts/tools/lint-syntax.js",
+    "setup:data": "node scripts/maintenance/build-microbes-db.js",
+    "verify:microorganism-ids": "bash scripts/maintenance/verify-microorganism-ids.sh backend/sql/microbes.db",
+    "validate:dashboard-foundation": "node scripts/validation/validate-dashboard-foundation.js",
+    "validate:microorganism-resolution": "node scripts/validation/validate-microorganism-resolution.js",
+    "validate:dashboard-failure-regressions": "node scripts/validation/validate-dashboard-failure-regressions.js",
+    "validate:prompt-matrix": "node scripts/validation/validate-prompt-matrix.js",
+    "validate:chatbot-contract": "node scripts/validation/validate-chatbot-contract.js"
+  },
+  "private": true,
+  "packageManager": "npm@11.10.1",
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "chart.js": "^4.5.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "ng2-charts": "^10.0.0",
+    "rxjs": "~7.8.0",
+    "sqlite3": "^6.0.1",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.4",
+    "@angular/cli": "^21.2.4",
+    "@angular/compiler-cli": "^21.2.0",
+    "concurrently": "^9.2.1",
+    "jsdom": "^28.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  },
+  "description": "Interactive microbiology analytics dashboard built with Angular, Express, and SQLite.",
+  "main": "backend/server.js",
+  "keywords": [
+    "angular",
+    "data-visualization",
+    "express",
+    "microbiology",
+    "sqlite"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs"
+}
